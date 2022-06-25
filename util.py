@@ -17,5 +17,5 @@ def importfilelist(name:str,delimit:str):
     return dataset
 
 def importdf(name:str, delimit:str):  
-    df = pd.read_csv(name,sep=delimit,header=None)
+    df = pd.read_csv(name,sep=delimit,header=None, names=["pt","eta","phi","charge"])
     return df
