@@ -30,7 +30,7 @@ def importpbdatapandas(event:int): # if event = -1 then import all events.
         print(dataset)
     else:
         dataset = importdf("ProcessedData/pbpb_0.csv", ',')
-        for i in range(1,2):
+        for i in range(1,3):
             filename = 'ProcessedData/pbpb_' + str(i) + '.csv'
             datasetnow = pd.read_csv(filename,sep=',',header=None)
             dataset = dataset.append(datasetnow)
@@ -39,4 +39,5 @@ def importpbdatapandas(event:int): # if event = -1 then import all events.
     
 ds = importpbdatapandas(-1)
 print(len(ds))
-print(ds[0:100])
+print(ds)
+#print(ds[0:100])
