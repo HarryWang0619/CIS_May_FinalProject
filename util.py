@@ -5,23 +5,12 @@ import scipy as sp
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
-def importfilelist(name:str,delimit:str):
-    # importfile('hw3_cancerdata.csv', '\t')
-    file = open("datasets/"+name, encoding='utf-8-sig')
-    reader = csv.reader(file, delimiter=delimit)
-    dataset = []
-    for row in reader:
-        dataset.append(row)
-    file.close()
-    return dataset
-
 def importdf(fileaddress:str, delimit:str):  
     df = pd.read_csv(fileaddress,sep=delimit,header=None, names=["pt","eta","phi","charge"])
     return df
 
 def importpbdatapandas(event:int): # if event = -1 then import all events.
-    if event <= -2 or event >= 29948:
+    if event <= -2 or event >= 22948:
         print("event number out of range")
         return
     if event != -1:
@@ -30,14 +19,37 @@ def importpbdatapandas(event:int): # if event = -1 then import all events.
         print(dataset)
     else:
         dataset = importdf("ProcessedData/pbpb_0.csv", ',')
-        for i in range(1,3):
+        for i in range(1, 22948):
             filename = 'ProcessedData/pbpb_' + str(i) + '.csv'
-            datasetnow = pd.read_csv(filename,sep=',',header=None)
-            dataset = dataset.append(datasetnow)
+            datasetnow = importdf(filename, ',')
+            dataset = pd.concat([dataset, datasetnow])
             print("importing event ",i)
     return dataset
-    
-ds = importpbdatapandas(-1)
-print(len(ds))
-print(ds)
-#print(ds[0:100])
+
+def importpbdatanumpy(event:int):
+    if event <= -2 or event >= 22948:
+        print("event number out of range")
+        return
+    if event != -1:
+        filename = 'ProcessedData/pbpb_' + str(event) + '.csv'
+        dataset = np.loadtxt(filename, delimiter=',')
+        print(dataset)
+    else:
+        dataset = np.loadtxt("ProcessedData/pbpb_0.csv", delimiter=',')
+        for i in range(1, 22948):
+            filename = 'ProcessedData/pbpb_' + str(i) + '.csv'
+            datasetnow = np.loadtxt(filename, delimiter=',')
+            dataset = np.concatenate((dataset, datasetnow))
+            print("importing event ",i)
+    return dataset
+
+##############################################################################################################################
+#                                                                                                                            
+#                   说明：如果想要import pbpb data，可以使用importpbdatapandas 或者importpbdatanumpy
+#                   如果要import特定的event number的话输入0-22947之间的数字                                                
+#                   如果要import所有event的话输入-1即可。
+#
+#                   e.g. >>> event_0 = importpbdatapandas(0) 我们使用pandas导入了序号为0的event
+#                   e.g. >>> event_all =  importpbdatapandas(-1) 我们使用pandas导入了所有event (大概要等2-3min)                 
+#                                                                                                                                    
+##############################################################################################################################
