@@ -16,7 +16,6 @@ def importpbdatapandas(event:int): # if event = -1 then import all events.
     if event != -1:
         filename = 'ProcessedData/pbpb_' + str(event) + '.csv'
         dataset = importdf(filename, ',')
-        print(dataset)
     else:
         dataset = importdf("ProcessedData/pbpb_0.csv", ',')
         for i in range(1, 22948):
@@ -33,7 +32,6 @@ def importpbdatanumpy(event:int):
     if event != -1:
         filename = 'ProcessedData/pbpb_' + str(event) + '.csv'
         dataset = np.loadtxt(filename, delimiter=',')
-        print(dataset)
     else:
         dataset = np.loadtxt("ProcessedData/pbpb_0.csv", delimiter=',')
         for i in range(1, 22948):
@@ -41,6 +39,36 @@ def importpbdatanumpy(event:int):
             datasetnow = np.loadtxt(filename, delimiter=',')
             dataset = np.concatenate((dataset, datasetnow))
             print("importing event ",i)
+    return dataset
+
+def importpdrange(start_event_index, end_event_index):
+    if start_event_index < 0 or start_event_index > 22947 or end_event_index < 0 or end_event_index > 22947:
+        print("event number out of range")
+        return
+    if start_event_index > end_event_index:
+        print("start_event_index > end_event_index")
+        return
+    dataset = importpbdatapandas(start_event_index)
+    for i in range(start_event_index+1, end_event_index+1):
+        filename = 'ProcessedData/pbpb_' + str(i) + '.csv'
+        datasetnow = importdf(filename, ',')
+        dataset = pd.concat([dataset, datasetnow])
+        print("importing event ",i)
+    return dataset
+
+def importnprange(start_event_index, end_event_index):
+    if start_event_index < 0 or start_event_index > 22947 or end_event_index < 0 or end_event_index > 22947:
+        print("event number out of range")
+        return
+    if start_event_index > end_event_index:
+        print("start_event_index > end_event_index")
+        return
+    dataset = importpbdatanumpy(start_event_index)
+    for i in range(start_event_index+1, end_event_index+1):
+        filename = 'ProcessedData/pbpb_' + str(i) + '.csv'
+        datasetnow = datasetnow = np.loadtxt(filename, delimiter=',')
+        dataset = np.concatenate((dataset, datasetnow))
+        print("importing event ",i)
     return dataset
 
 ##############################################################################################################################
