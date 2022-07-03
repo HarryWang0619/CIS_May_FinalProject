@@ -16,6 +16,26 @@ def importfilelist(name:str,delimit:str):
     file.close()
     return dataset
 
-def importdf(name:str, delimit:str):  
-    df = pd.read_csv(name,sep=delimit,header=None, names=["pt","eta","phi","charge"])
+def importdf(fileaddress:str, delimit:str):  
+    df = pd.read_csv(fileaddress,sep=delimit,header=None, names=["pt","eta","phi","charge"])
     return df
+
+def importpbdatapandas(event:int): # if event = -1 then import all events.
+    if event <= -2 or event >= 29948:
+        print("event number out of range")
+        return
+    if event != -1:
+        filename = 'ProcessedData/pbpb_' + str(event) + '.csv'
+        dataset = importdf(filename, ',')
+        print(dataset)
+    else:
+        dataset = importdf("ProcessedData/pbpb_0.csv", ',')
+        for i in range(1,22948):
+            filename = 'ProcessedData/pbpb_' + str(i) + '.csv'
+            datasetnow = pd.read_csv(filename,sep=',',header=None)
+            dataset = dataset.append(datasetnow)
+            print("importing event ",i)
+    return dataset
+    
+ds = importpbdatapandas(-1)
+print(ds[0:10])
