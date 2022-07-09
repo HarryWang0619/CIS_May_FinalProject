@@ -4,6 +4,8 @@ import numpy as np
 import scipy as sp
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator
 
 def importdf(fileaddress:str, delimit:str):  
     df = pd.read_csv(fileaddress,sep=delimit,header=None, names=["pt","eta","phi","charge"])
@@ -52,7 +54,7 @@ def importpdrange(start_event_index, end_event_index):
     for i in range(start_event_index+1, end_event_index+1):
         filename = 'ProcessedData/pbpb_' + str(i) + '.csv'
         datasetnow = importdf(filename, ',')
-        dataset = pd.concat([dataset, datasetnow])
+        dataset = pd.concat([dataset, datasetnow], ignore_index=True)
         print("importing event ",i)
     return dataset
 
