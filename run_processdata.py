@@ -6,7 +6,7 @@ def writehelper(i, writein):
     writer = csv.writer(f)
     writer.writerows(writein)
     f.close()
-
+    return
 
 def readandwrite(): #this read line from PbPb file, and recognize event start and end. return rows
     with open('Pbpb_2015.txt') as f:
