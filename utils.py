@@ -1,5 +1,6 @@
 import math
 import csv
+import os
 import numpy as np
 import scipy as sp
 import pandas as pd
@@ -72,7 +73,41 @@ def importnprange(start_event_index, end_event_index):
         dataset = np.concatenate((dataset, datasetnow))
         print("importing event ",i)
     return dataset
-    
+
+def importdphideta(event:int):
+    if event <= -2 or event >= 22948:
+        print("event number out of range")
+        return
+    filename = 'ProcessedDifferenceData/devent_' + str(event) + '.csv'
+    # check if file exists
+    if not os.path.isfile(filename):
+        print("file not found")
+        return
+    dataset = pd.read_csv(filename,sep=',',header=None, names=["phi","eta"])
+    return dataset
+
+def importdphidetarange(start_index, end_index):
+    print("importdphidetarange not implemented yet")
+    if start_index < 0 or start_index > 22947 or end_index < 0 or end_index > 22947:
+        print("event number out of range")
+        return
+    if start_index > end_index:
+        print("start_index > end_index")
+        return
+    for i in range(start_index, end_index+1):
+        filename = 'ProcessedDifferenceData/devent_' + str(i) + '.csv'
+        # check if file exists
+        if not os.path.isfile(filename):
+            print("one of the file is not found, index number: ",i)
+            return
+    dataset = importdphideta(start_index)
+    for i in range(start_index+1, end_index+1):
+        filename = 'ProcessedDifferenceData/devent_' + str(i) + '.csv'
+        datasetnow = importdphideta(i)
+        dataset = pd.concat([dataset, datasetnow], ignore_index=True)
+        print("importing event ",i)
+    return dataset
+
 
 ##############################################################################################################################
 #                                                  Utility Functions                                                      
@@ -82,6 +117,13 @@ def importnprange(start_event_index, end_event_index):
 #                   如果要import所有event的话输入-1即可。
 #
 #                   e.g. >>> event_0 = importpbdatapandas(0) 我们使用pandas导入了序号为0的event
-#                   e.g. >>> event_all =  importpbdatapandas(-1) 我们使用pandas导入了所有event (大概要等2-3min)                 
+#                   e.g. >>> event_all =  importpbdatapandas(-1) 我们使用pandas导入了所有event (大概要等2-3min) 
+# 
+#                   说明：importdphideta 和 importdphidetarange 可以用来导入dphi/deta数据
+#                   如果想要import dphi/deta数据，可以使用importdphideta导入单个event，
+#                   或者使用importdphidetarange导入多个event的dphi 和 deta 数据。
+#                   然，预处理还没有做完。全部预处理大概需要占用电脑空间20个GB
+#                   如果导入全部event，大概可以从20个小时加速到两个小时。（需要预处理）
+#             
 #                                                                                                                                    
 ##############################################################################################################################
