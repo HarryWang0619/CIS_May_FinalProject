@@ -1,5 +1,6 @@
 import math
 import csv
+import time
 import os
 import numpy as np
 import scipy as sp
@@ -99,12 +100,14 @@ def importdphidetarange(start_index, end_index):
         if not os.path.isfile(filename):
             print("one of the file is not found, index number: ",i)
             return
+    t0 = time.time()
     dataset = importdphideta(start_index)
     for i in range(start_index+1, end_index+1):
         filename = 'ProcessedDifferenceData/devent_' + str(i) + '.csv'
         datasetnow = importdphideta(i)
         dataset = pd.concat([dataset, datasetnow], ignore_index=True)
-        print("importing event ",i)
+        if i % 100 == 0:
+            print("importing event ",i, " time: ", time.time()-t0)
     return dataset
 
 
