@@ -87,7 +87,6 @@ def importdphideta(event:int):
     return dataset
 
 def importdphidetarange(start_index, end_index):
-    print("importdphidetarange not implemented yet")
     if start_index < 0 or start_index > 22947 or end_index < 0 or end_index > 22947:
         print("event number out of range")
         return
