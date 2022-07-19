@@ -124,6 +124,32 @@ def surfacedata(dfdata, dx = 0.5, dy = 0.5, rangex=3.15, rangey=4):
         z_data[phi_index][eta_index] += 1
     return phi_data, eta_data, z_data.T
 
+def plot_3d_surface(xdata, ydata, zdata, zlim, title, filename):
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+
+    # Make data.
+    X = xdata
+    Y = ydata
+    X, Y = np.meshgrid(X, Y)
+    Z = zdata
+
+    # Plot the surface.
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.rainbow, antialiased=True)
+
+    # Customize the z axis.
+    ax.set_zlim(0, zlim)
+    ax.zaxis.set_major_locator(LinearLocator(10))
+    # A StrMethodFormatter is used automatically
+    ax.zaxis.set_major_formatter('{x:.02f}')
+    ax.set_xlabel('dphi')
+    ax.set_ylabel('deta')
+    ax.set_zlabel('S')
+    plt.title(title)
+
+    # Add a color bar which maps values to colors.
+    plt.savefig('SavedFig/'+filename)
+    plt.show()
+
 ##############################################################################################################################
 #                                                  Utility Functions                                                      
 #                                                                              
