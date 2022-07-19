@@ -110,6 +110,19 @@ def importdphidetarange(start_index, end_index):
             print("importing event ",i, " time: ", time.time()-t0)
     return dataset
 
+def surfacedata(dfdata, dx = 0.5, dy = 0.5, rangex=3.15, rangey=4):
+    phi_c = math.ceil(rangex*2/dx)
+    eta_c = math.ceil(rangey*2/dy)
+    phi_data = np.arange(-rangex, rangex, dx)+dx/2
+    eta_data = np.arange(-rangey, rangey, dy)+dy/2
+    z_data = np.zeros([phi_c, eta_c], dtype=int)
+    for index,instance in dfdata.iterrows():
+        if instance['phi'] >= rangex or instance['phi'] <= -rangex or instance['eta'] >= rangey or instance['eta'] <= -rangey:
+            continue
+        phi_index = math.floor((instance['phi']+rangex)/dx) 
+        eta_index = math.floor((instance['eta']+rangey)/dy)
+        z_data[phi_index][eta_index] += 1
+    return phi_data, eta_data, z_data.T
 
 ##############################################################################################################################
 #                                                  Utility Functions                                                      
