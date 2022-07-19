@@ -110,19 +110,11 @@ def importdphidetarange(start_index, end_index):
             print("importing event ",i, " time: ", time.time()-t0)
     return dataset
 
-def surfacedata(dfdata, dx = 0.5, dy = 0.5, rangex=3.15, rangey=4):
-    phi_c = math.ceil(rangex*2/dx)
-    eta_c = math.ceil(rangey*2/dy)
-    phi_data = np.arange(-rangex, rangex, dx)+dx/2
-    eta_data = np.arange(-rangey, rangey, dy)+dy/2
-    z_data = np.zeros([phi_c, eta_c], dtype=int)
-    for index,instance in dfdata.iterrows():
-        if instance['phi'] >= rangex or instance['phi'] <= -rangex or instance['eta'] >= rangey or instance['eta'] <= -rangey:
-            continue
-        phi_index = math.floor((instance['phi']+rangex)/dx) 
-        eta_index = math.floor((instance['eta']+rangey)/dy)
-        z_data[phi_index][eta_index] += 1
-    return phi_data, eta_data, z_data.T
+def surfacedata(dfdata, binx=25, biny = 25, rangex=3.15, rangey=6):
+    zdat,xdat,ydat = np.histogram2d(dfdata['phi'], dfdata['eta'], bins=[binx,biny], range=[[-rangex,rangex],[-rangey,rangey]])
+    xdat = xdat[:-1] + (xdat[1]-xdat[0])/2
+    ydat = ydat[:-1] + (ydat[1]-ydat[0])/2
+    return xdat, ydat, zdat
 
 def plot_3d_surface(xdata, ydata, zdata, zlim, title, filename):
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
