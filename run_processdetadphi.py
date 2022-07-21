@@ -29,7 +29,7 @@ def readandwrite_delta():
     # this function read file from ProcessedData/pbpb_*.csv
     # then calculate the difference between every two instances.
     # then write the difference to ProcessedDifferenceData/devent_*.csv
-    writeidx = range(17500,20000) #22948
+    writeidx = range(20000,22000) #22948
     print("start reading")
     t0 = time.time()
     all_events = [importpbdatapandas(i) for i in range(0, 22948)]
