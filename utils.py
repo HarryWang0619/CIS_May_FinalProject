@@ -116,7 +116,13 @@ def surfacedata(dfdata, binx=25, biny = 25, rangex=3.15, rangey=6):
     ydat = ydat[:-1] + (ydat[1]-ydat[0])/2
     return xdat, ydat, zdat
 
-def plot_3d_surface(xdata, ydata, zdata, zlim, title, filename):
+def surfacedatapro(dfdata, binx=25, biny = 25, rangexhigh=(-2+2*math.pi), rangexlow=-2, rangey=6):
+    zdat,xdat,ydat = np.histogram2d(dfdata['phi'], dfdata['eta'], bins=[binx,biny], range=[[rangexlow,rangexhigh],[-rangey,rangey]])
+    xdat = xdat[:-1] + (xdat[1]-xdat[0])/2
+    ydat = ydat[:-1] + (ydat[1]-ydat[0])/2
+    return xdat, ydat, zdat
+
+def plot_3d_surface(xdata, ydata, zdata, zlim, title, zlabel, filename):
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
     # Make data.
@@ -130,12 +136,12 @@ def plot_3d_surface(xdata, ydata, zdata, zlim, title, filename):
 
     # Customize the z axis.
     ax.set_zlim(0, zlim)
-    ax.zaxis.set_major_locator(LinearLocator(10))
+    ax.zaxis.set_major_locator(LinearLocator(5))
     # A StrMethodFormatter is used automatically
-    ax.zaxis.set_major_formatter('{x:.02f}')
+    ax.zaxis.set_major_formatter('{x:.03f}')
     ax.set_xlabel('dphi')
     ax.set_ylabel('deta')
-    ax.set_zlabel('S')
+    ax.set_zlabel(zlabel)
     plt.title(title)
 
     # Add a color bar which maps values to colors.
