@@ -116,6 +116,12 @@ def surfacedata(dfdata, binx=25, biny = 25, rangex=3.15, rangey=6):
     ydat = ydat[:-1] + (ydat[1]-ydat[0])/2
     return xdat, ydat, zdat
 
+def surfacedatapro(dfdata, binx=25, biny = 25, rangexhigh=(-2+2*math.pi), rangexlow=-2, rangey=6):
+    zdat,xdat,ydat = np.histogram2d(dfdata['phi'], dfdata['eta'], bins=[binx,biny], range=[[rangexlow,rangexhigh],[-rangey,rangey]])
+    xdat = xdat[:-1] + (xdat[1]-xdat[0])/2
+    ydat = ydat[:-1] + (ydat[1]-ydat[0])/2
+    return xdat, ydat, zdat
+
 def plot_3d_surface(xdata, ydata, zdata, zlim, title, zlabel, filename):
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 
