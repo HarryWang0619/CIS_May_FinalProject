@@ -11,32 +11,7 @@ from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 
 if torch.cuda.is_available():
-  tensor = tensor.to('cuda')
-
-def calculate_single_data(startidx, endidx, phase=1.5, bincount=30):
-    rlist = []
-    for i in range(startidx, endidx+1):
-        rlist.append(single_event_difference(i,phase))
-    result = torch.cat(rlist,dim=0)
-    x_df = pd.DataFrame(result, columns=['phi','eta'])
-    sx, sy, sz = surfacedatapro(x_df, bincount, bincount, torch.pi+phase, -torch.pi+phase, 5.5)
-    sz = sz.T/(endidx-startidx)
-    return sx, sy, sz
-
-def single_event_difference(i,phase=1.5):
-    event = importpbdatanumpy(i).T
-    phi = torch.tensor(event[2])
-    eta = torch.tensor(event[1])
-    deta = eta - eta.unsqueeze(-1)
-    dphi = phi - phi.unsqueeze(-1)
-    ids = torch.arange(0,len(phi))
-    mask = torch.ones_like(dphi).scatter_(1,ids.unsqueeze(1),0.)
-    dphi = dphi[mask.bool()]
-    deta = deta[mask.bool()]
-    pimask = (dphi > (torch.pi+phase))*(-1) + (dphi < (-torch.pi+phase))*1
-    dphi += (pimask*2*torch.pi)
-    result = torch.stack([dphi,deta],dim=1)
-    return result
+    tensor = tensor.to('cuda')
 
 def importdf(fileaddress:str, delimit:str):  
     df = pd.read_csv(fileaddress,sep=delimit,header=None, names=["pt","eta","phi","charge"])
@@ -176,6 +151,76 @@ def plot_3d_surface(xdata, ydata, zdata, zlim, title, zlabel, filename):
     # Add a color bar which maps values to colors.
     plt.savefig('SavedFig/'+filename)
     plt.show()
+
+def single_event_difference(i,phase=1.5):
+    event = importpbdatanumpy(i).T
+    phi = torch.tensor(event[2])
+    eta = torch.tensor(event[1])
+    deta = eta - eta.unsqueeze(-1)
+    dphi = phi - phi.unsqueeze(-1)
+    ids = torch.arange(0,len(phi))
+    mask = torch.ones_like(dphi).scatter_(1,ids.unsqueeze(1),0.)
+    dphi = dphi[mask.bool()]
+    deta = deta[mask.bool()]
+    pimask = (dphi > (torch.pi+phase))*(-1) + (dphi < (-torch.pi+phase))*1
+    dphi += (pimask*2*torch.pi)
+    result = torch.stack([dphi,deta],dim=1)
+    return result
+
+def calculate_single_data(startidx, endidx, phase=1.5, bincount=30, save=False):
+    rlist = []
+    for i in range(startidx, endidx+1):
+        rlist.append(single_event_difference(i,phase))
+    result = torch.cat(rlist,dim=0)
+    x_df = pd.DataFrame(result, columns=['phi','eta'])
+    sx, sy, sz = surfacedatapro(x_df, bincount, bincount, torch.pi+phase, -torch.pi+phase, 5.5)
+    sz = sz.T
+    if save:
+        filename = "single/"+str(bincount)+"x"+str(bincount)+"_"+str(startidx)+"to"+str(endidx)+".csv"
+        np.savetxt(filename, sz, delimiter=",")
+        np.savetxt('single/single_x_header.csv', sx, delimiter=",")
+        np.savetxt('single/single_y_header.csv', sy, delimiter=",")
+    sz/=(endidx-startidx)
+    return sx, sy, sz
+
+def mixed_event_difference(i,phase=1.5):
+    eventA = importpbdatanumpy(i).T
+    eventB = importpbdatanumpy(i+1).T
+
+    phi1 = torch.tensor(eventA[2])
+    eta1 = torch.tensor(eventA[1])
+    phi2 = torch.tensor(eventB[2])
+    eta2 = torch.tensor(eventB[1])
+
+    dphi1 = (phi1 - phi2.unsqueeze(-1)).flatten()
+    deta1 = (eta1 - eta2.unsqueeze(-1)).flatten()
+    dphi2 = (phi2 - phi1.unsqueeze(-1)).flatten()
+    deta2 = (eta2 - eta1.unsqueeze(-1)).flatten()
+    dphi = torch.cat([dphi1,dphi2],dim=0)
+    deta = torch.cat([deta1,deta2],dim=0)
+
+    pimask = (dphi > (torch.pi+phase))*(-1) + (dphi < (-torch.pi+phase))*1
+    dphi += (pimask*2*torch.pi)
+
+    result = torch.stack([dphi,deta],dim=1)
+    return result
+
+def calculate_mixed_data(startidx, endidx, phase=1.5, bincount=30, save=False):
+    rlist = []
+    for i in range(startidx, endidx):
+        rlist.append(mixed_event_difference(i,phase))
+    result = torch.cat(rlist,dim=0)
+    x_df = pd.DataFrame(result, columns=['phi','eta'])
+    sx, sy, sz = surfacedatapro(x_df, bincount, bincount, torch.pi+phase, -torch.pi+phase, 5.5)
+    sz = sz.T
+    if save:
+        filename = "mixed/"+str(bincount)+"x"+str(bincount)+"_"+str(startidx)+"to"+str(endidx)+".csv"
+        np.savetxt(filename, sz, delimiter=",")
+        np.savetxt('mixed/mixed_x_header.csv', sx, delimiter=",")
+        np.savetxt('mixed/mixed_y_header.csv', sy, delimiter=",")
+    sz/=(endidx-startidx-1)
+    return sx, sy, sz
+
 
 ##############################################################################################################################
 #                                                  Utility Functions                                                      
