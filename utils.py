@@ -8,6 +8,35 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
+import torch
+
+if torch.cuda.is_available():
+  tensor = tensor.to('cuda')
+
+def calculate_single_data(startidx, endidx, phase=1.5, bincount=30):
+    rlist = []
+    for i in range(startidx, endidx+1):
+        rlist.append(single_event_difference(i,phase))
+    result = torch.cat(rlist,dim=0)
+    x_df = pd.DataFrame(result, columns=['phi','eta'])
+    sx, sy, sz = surfacedatapro(x_df, bincount, bincount, torch.pi+phase, -torch.pi+phase, 5.5)
+    sz = sz.T/(endidx-startidx)
+    return sx, sy, sz
+
+def single_event_difference(i,phase=1.5):
+    event = importpbdatanumpy(i).T
+    phi = torch.tensor(event[2])
+    eta = torch.tensor(event[1])
+    deta = eta - eta.unsqueeze(-1)
+    dphi = phi - phi.unsqueeze(-1)
+    ids = torch.arange(0,len(phi))
+    mask = torch.ones_like(dphi).scatter_(1,ids.unsqueeze(1),0.)
+    dphi = dphi[mask.bool()]
+    deta = deta[mask.bool()]
+    pimask = (dphi > (torch.pi+phase))*(-1) + (dphi < (-torch.pi+phase))*1
+    dphi += (pimask*2*torch.pi)
+    result = torch.stack([dphi,deta],dim=1)
+    return result
 
 def importdf(fileaddress:str, delimit:str):  
     df = pd.read_csv(fileaddress,sep=delimit,header=None, names=["pt","eta","phi","charge"])
