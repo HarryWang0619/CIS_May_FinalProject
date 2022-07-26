@@ -1,6 +1,7 @@
 import math
 import csv
 import time
+import torch
 import os
 import numpy as np
 import scipy as sp
@@ -8,7 +9,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
-import torch
 
 if torch.cuda.is_available():
   tensor = tensor.to('cuda')
